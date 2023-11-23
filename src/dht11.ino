@@ -18,7 +18,7 @@ void readAndDisplayDHTData(String text, DHT &dht, LiquidCrystal_I2C &lcd, int co
     // Check if readings are valid
     if (!isnan(temperature) && !isnan(humidity))
     {
-        lcd.setCursor(colOffSet, rowOffset);
+        lcd.setCursor(colOffSet+2, rowOffset);
         lcd.print(text);
         lcd.setCursor(colOffSet, rowOffset + 1);
         lcd.print("T:");
@@ -29,7 +29,6 @@ void readAndDisplayDHTData(String text, DHT &dht, LiquidCrystal_I2C &lcd, int co
         lcd.print(humidity, 1);
         lcd.print("%");
         lcd.setCursor(colOffSet = 2, rowOffset + 3);
-        lcd.print("                ");
 
         if ((temperature > 40))
         {
@@ -43,11 +42,5 @@ void readAndDisplayDHTData(String text, DHT &dht, LiquidCrystal_I2C &lcd, int co
             lcd.print("Low Temperature!");
             nonBlockingDelay();
         }
-    }
-    else
-    {
-        // If readings are invalid, print an error message on the LCD
-        lcd.setCursor(0, rowOffset);
-        lcd.print("Error reading DHT");
     }
 }
