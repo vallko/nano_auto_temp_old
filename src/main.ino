@@ -2,7 +2,15 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
-LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
+#include "DHTFunctions.h"
+#include <nonBlockDelay.h>
+
+int lcdAddress = 0x27;
+int lcdColumns = 20;
+int lcdRows = 4;
+String text = "";
+
+LiquidCrystal_I2C lcd(lcdAddress, lcdColumns, lcdRows);
 
 #define DHTPIN_1 2    // Digital pin for the first DHT11 sensor
 #define DHTPIN_2 3    // Digital pin for the second DHT11 sensor
@@ -16,8 +24,7 @@ void setup()
   lcd.backlight();
   Serial.begin(9600);
   lcd.clear();
-  dht1.begin(); // Start the first DHT sensor
-  dht2.begin(); // Start the second DHT sensor
+  initializeDHTSensors(dht1, dht2, DHTPIN_1, DHTPIN_2);
 }
 
 void loop()
@@ -33,55 +40,17 @@ void loop()
   // Check if readings are valid
   if (!isnan(temperature1) && !isnan(humidity1) && !isnan(temperature2) && !isnan(humidity2))
   {
-    // Print temperature and humidity on the LCD
-    lcd.clear();
-    // In The Car
-    lcd.setCursor(0, 0);
-    lcd.print("In");
-    lcd.setCursor(0, 1);
-    lcd.print("T:");
-    lcd.print(temperature1, 1);
-    lcd.print("C");
-    lcd.setCursor(0, 2);
-    lcd.print("H:");
-    lcd.print(humidity1, 1);
-    lcd.print("%");
-    // out the car
-    lcd.setCursor(12, 0);
-    lcd.print("Out");
-    lcd.setCursor(12, 1);
-    lcd.print("T:");
-    lcd.print(temperature2, 1);
-    lcd.print("C");
-    lcd.setCursor(12, 2);
-    lcd.print("H:");
-    lcd.print(humidity2, 1);
-    lcd.print("%");
-    // Delay before the next iteration
-    delay(2000);
-    if ((temperature1 > 25) || (temperature2 > 25))
-    {
-      lcd.setCursor(2, 3);
-      lcd.print("High Temperature");
-       delay(3000);
-    }
-        if ((temperature1) <= 2 || (temperature2 <= 2))
-    {
-      lcd.setCursor(2, 3);
-      lcd.print("Low Temperature!");
-       delay(3000);
-    }
+    readAndDisplayDHTData(text="In",dht1, lcd, 0, 0);
+    readAndDisplayDHTData(text="Out",dht2, lcd, 13, 0);
+    nonBlockingDelay();
   }
   else
   {
-    // If readings are invalid, print an error message
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Error reading");
     lcd.setCursor(0, 1);
     lcd.print("DHT sensor");
-
-    // Delay before the next iteration
-    delay(2000);
+    nonBlockingDelay();
   }
 }
