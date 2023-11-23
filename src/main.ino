@@ -35,6 +35,7 @@ void setup()
   Serial.begin(9600);
   lcd.clear();
   initializeDHTSensors(dht1, dht2, DHTPIN_1, DHTPIN_2);
+  displayAudiLogo();
 }
 
 void loop()
@@ -73,3 +74,30 @@ void loop()
   readAndDisplayDHTData(text = "In", dht1, lcd, 0, 0);
   readAndDisplayDHTData(text = "Out", dht2, lcd, 13, 0);
 }
+//TODO: Create Custom Audi LOGO for initial display initialization
+// void displayAudiLogo()
+// {
+//   // Audi logo ASCII art
+//   byte customChar[] = {
+//       0x1F,
+//       0x1F,
+//       0x1F,
+//       0x1F,
+//       0x1F,
+//       0x1F,
+//       0x1F,
+//       0x1F};
+//   // Display each line of "DAS AUTO" on the LCD
+//   for (int i = 0; i < 4; i++)
+//   {
+//     for (int j = 0; j < lcdColumns; j++)
+//     {
+//       lcd.createChar(0, customChar);
+//       lcd.write(0);
+//       // Write the custom character
+//     }
+//   }
+
+//   delay(5000);
+//   lcd.clear();
+// }
