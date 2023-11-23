@@ -35,7 +35,6 @@ void setup()
   Serial.begin(9600);
   lcd.clear();
   initializeDHTSensors(dht1, dht2, DHTPIN_1, DHTPIN_2);
-  displayAudiLogo();
 }
 
 void loop()
