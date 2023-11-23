@@ -1,0 +1,2 @@
+Car temperature in/out reader.
+Used Arduino Nano LCD 4x20 and two DHT11 for inside and outside of the car.
