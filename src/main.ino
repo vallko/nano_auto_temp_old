@@ -2,7 +2,30 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
-LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
+#include "DHTFunctions.h"
+#include <nonBlockDelay.h>
+#include "HCSR04Functions.h"
+#include "MainMenu.h"
+#include "lcdFunctions.h"
+
+const int analogPin = A0;
+
+int lcdAddress = 0x27;
+int lcdColumns = 20;
+int lcdRows = 4;
+String text = "";
+
+LiquidCrystal_I2C lcd(lcdAddress, lcdColumns, lcdRows);
+MainMenu mainMenu(analogPin);
+
+const int trigPin1 = 4; // Trig pin of the first HC-SR04
+const int echoPin1 = 5; // Echo pin of the first HC-SR04
+
+const int trigPin2 = 6; // Trig pin of the second HC-SR04
+const int echoPin2 = 7; // Echo pin of the second HC-SR04
+
+HCSR04Functions hcsr04_1(trigPin1, echoPin1);
+HCSR04Functions hcsr04_2(trigPin2, echoPin2);
 
 #define DHTPIN_1 2    // Digital pin for the first DHT11 sensor
 #define DHTPIN_2 3    // Digital pin for the second DHT11 sensor
@@ -16,72 +39,80 @@ void setup()
   lcd.backlight();
   Serial.begin(9600);
   lcd.clear();
-  dht1.begin(); // Start the first DHT sensor
-  dht2.begin(); // Start the second DHT sensor
+  initializeDHTSensors(dht1, dht2, DHTPIN_1, DHTPIN_2);
 }
 
 void loop()
 {
-  // Read temperature and humidity from the first DHT sensor
+  mainMenu.displayMenu();
+  int option = mainMenu.getMenuOption();
+
+  // switch (option)
+  // {
+  // case 1:
+  //   lcd.print("Option 1 selected");
+  //   delay(2000);
+  //   break;
+  // case 2:
+  //   lcd.print("Option 2 selected");
+  //   delay(2000);
+  //   break;
+  // case 3:
+  //   lcd.print("Option 3 selected");
+  //   delay(2000);
+  //   break;
+  // case 4:
+  //   lcd.print("Option 4 selected");
+  //   delay(2000);
+  //   break;
+  // case 5:
+  //   lcd.print("Temp and Park Asist");
+  //   showTempAndDist();
+  //   delay(2000);
+  //   break;
+  // default:
+  //   lcd.setCursor(0, 0);
+  //   lcd.print("Invalid Option");
+  //   incrementCounterAndClearLCDEverySecond(lcd);
+  //   break;
+  // }
+
+  showTempAndDist();
+}
+
+void showTempAndDist()
+{
   float temperature1 = dht1.readTemperature();
   float humidity1 = dht1.readHumidity();
-
-  // Read temperature and humidity from the second DHT sensor
   float temperature2 = dht2.readTemperature();
   float humidity2 = dht2.readHumidity();
-
-  // Check if readings are valid
-  if (!isnan(temperature1) && !isnan(humidity1) && !isnan(temperature2) && !isnan(humidity2))
+  int distance1 = hcsr04_1.getDistance();
+  int distance2 = hcsr04_2.getDistance();
+  nonBlockingDelay();
+  lcd.setCursor(6, 0);
+  lcd.print("F:");
+  if (distance1 < 5)
   {
-    // Print temperature and humidity on the LCD
-    lcd.clear();
-    // In The Car
-    lcd.setCursor(0, 0);
-    lcd.print("In");
-    lcd.setCursor(0, 1);
-    lcd.print("T:");
-    lcd.print(temperature1, 1);
-    lcd.print("C");
-    lcd.setCursor(0, 2);
-    lcd.print("H:");
-    lcd.print(humidity1, 1);
-    lcd.print("%");
-    // out the car
-    lcd.setCursor(12, 0);
-    lcd.print("Out");
-    lcd.setCursor(12, 1);
-    lcd.print("T:");
-    lcd.print(temperature2, 1);
-    lcd.print("C");
-    lcd.setCursor(12, 2);
-    lcd.print("H:");
-    lcd.print(humidity2, 1);
-    lcd.print("%");
-    // Delay before the next iteration
-    delay(2000);
-    if ((temperature1 > 25) || (temperature2 > 25))
-    {
-      lcd.setCursor(2, 3);
-      lcd.print("High Temperature");
-       delay(3000);
-    }
-        if ((temperature1) <= 2 || (temperature2 <= 2))
-    {
-      lcd.setCursor(2, 3);
-      lcd.print("Low Temperature!");
-       delay(3000);
-    }
+    lcd.print("XXX");
   }
   else
   {
-    // If readings are invalid, print an error message
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Error reading");
-    lcd.setCursor(0, 1);
-    lcd.print("DHT sensor");
-
-    // Delay before the next iteration
-    delay(2000);
+    lcd.print(distance1);
   }
+  delay(200);
+  lcd.print("   ");
+  lcd.setCursor(6, 3);
+  lcd.print("B:");
+  if (distance2 < 5)
+  {
+    lcd.print("XXX");
+  }
+  else
+  {
+    lcd.print(distance2);
+  }
+  delay(200);
+  lcd.print("   ");
+  readAndDisplayDHTData(text = "In", dht1, lcd, 0, 0);
+  readAndDisplayDHTData(text = "Out", dht2, lcd, 13, 0);
 }
