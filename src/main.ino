@@ -5,6 +5,10 @@
 #include "DHTFunctions.h"
 #include <nonBlockDelay.h>
 #include "HCSR04Functions.h"
+#include "MainMenu.h"
+#include "lcdFunctions.h"
+
+const int analogPin = A0;
 
 int lcdAddress = 0x27;
 int lcdColumns = 20;
@@ -12,6 +16,7 @@ int lcdRows = 4;
 String text = "";
 
 LiquidCrystal_I2C lcd(lcdAddress, lcdColumns, lcdRows);
+MainMenu mainMenu(analogPin);
 
 const int trigPin1 = 4; // Trig pin of the first HC-SR04
 const int echoPin1 = 5; // Echo pin of the first HC-SR04
@@ -39,6 +44,44 @@ void setup()
 
 void loop()
 {
+  mainMenu.displayMenu();
+  int option = mainMenu.getMenuOption();
+
+  // switch (option)
+  // {
+  // case 1:
+  //   lcd.print("Option 1 selected");
+  //   delay(2000);
+  //   break;
+  // case 2:
+  //   lcd.print("Option 2 selected");
+  //   delay(2000);
+  //   break;
+  // case 3:
+  //   lcd.print("Option 3 selected");
+  //   delay(2000);
+  //   break;
+  // case 4:
+  //   lcd.print("Option 4 selected");
+  //   delay(2000);
+  //   break;
+  // case 5:
+  //   lcd.print("Temp and Park Asist");
+  //   showTempAndDist();
+  //   delay(2000);
+  //   break;
+  // default:
+  //   lcd.setCursor(0, 0);
+  //   lcd.print("Invalid Option");
+  //   incrementCounterAndClearLCDEverySecond(lcd);
+  //   break;
+  // }
+
+  showTempAndDist();
+}
+
+void showTempAndDist()
+{
   float temperature1 = dht1.readTemperature();
   float humidity1 = dht1.readHumidity();
   float temperature2 = dht2.readTemperature();
@@ -56,7 +99,7 @@ void loop()
   {
     lcd.print(distance1);
   }
-  delay(100);
+  delay(200);
   lcd.print("   ");
   lcd.setCursor(6, 3);
   lcd.print("B:");
@@ -68,35 +111,8 @@ void loop()
   {
     lcd.print(distance2);
   }
-  delay(100);
+  delay(200);
   lcd.print("   ");
   readAndDisplayDHTData(text = "In", dht1, lcd, 0, 0);
   readAndDisplayDHTData(text = "Out", dht2, lcd, 13, 0);
 }
-//TODO: Create Custom Audi LOGO for initial display initialization
-// void displayAudiLogo()
-// {
-//   // Audi logo ASCII art
-//   byte customChar[] = {
-//       0x1F,
-//       0x1F,
-//       0x1F,
-//       0x1F,
-//       0x1F,
-//       0x1F,
-//       0x1F,
-//       0x1F};
-//   // Display each line of "DAS AUTO" on the LCD
-//   for (int i = 0; i < 4; i++)
-//   {
-//     for (int j = 0; j < lcdColumns; j++)
-//     {
-//       lcd.createChar(0, customChar);
-//       lcd.write(0);
-//       // Write the custom character
-//     }
-//   }
-
-//   delay(5000);
-//   lcd.clear();
-// }

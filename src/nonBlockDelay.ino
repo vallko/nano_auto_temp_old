@@ -11,7 +11,7 @@ void nonBlockingDelay() {
 
   if (currentMillis - previousMillis >= interval) {
     // Code to execute after the specified interval
-    
+
     // Reset the timer
     previousMillis = currentMillis;
   }
